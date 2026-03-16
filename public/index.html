@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<title>Desidratador</title>
+<link rel="stylesheet" href="style.css">
+</head>
+ 
+<body>
+
+<div class="background">
+
+<div class="login-wrapper">
+
+<div class="login-card" id="login">
+
+<h2>Entrar</h2>
+
+<input id="username" placeholder="Usuário">
+<input type="password" id="password" placeholder="Senha">
+
+<button onclick="login()">Entrar</button>
+
+<div class="login-links">
+<button onclick="mostrarEsqueciSenha()">Esqueci minha senha</button>
+</div>
+
+<button onclick="mostrarCadastro()">Criar conta</button>
+
+</div>
+
+
+<div class="login-card" id="cadastro" style="display:none;">
+
+<h2>Criar Conta</h2>
+
+<input id="new-user" placeholder="Usuário">
+<input id="new-pass" type="password" placeholder="Senha">
+
+<button onclick="criarConta()">Registrar</button>
+
+<div class="login-links">
+<button onclick="voltarLogin()">Voltar</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<section id="forgot-pane" style="display:none;">
+<h3>Recuperar Acesso</h3>
+
+<input id="rec-user" placeholder="Usuário">
+<input id="rec-resp" placeholder="Resposta da pergunta">
+<input id="rec-nova" type="password" placeholder="Nova senha">
+
+<button onclick="recuperarSenha()">Redefinir</button>
+</section>
+
+
+<section id="dashboard" style="display:none;">
+
+<h2>Dashboard</h2>
+
+<p>Temperatura Atual:
+<span id="temp">0</span>°C
+</p>
+
+<p>Temperatura Desejada:
+<span id="setpoint">0</span>°C
+</p>
+
+<button onclick="ajustarSetpoint(-1)">−</button>
+<button onclick="ajustarSetpoint(1)">+</button>
+
+
+<h3>Alimentos</h3>
+
+<input id="nome" placeholder="Nome">
+<input type="number" id="tempAlim" placeholder="Temperatura">
+<input type="number" id="tempoAlim" placeholder="Tempo">
+
+<button onclick="addAlimento()">Adicionar</button>
+
+<ul id="lista"></ul>
+
+</section>
+
+<script src="script.js"></script>
+
+</body>
+</html>
