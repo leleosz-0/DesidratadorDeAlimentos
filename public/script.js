@@ -1,4 +1,4 @@
-let token = "";
+localStorage.setItem("token", data.token);
 
 /* LOGIN */
 
