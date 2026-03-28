@@ -1,170 +1,190 @@
+/* style.css (melhorias visuais leves + responsividade) */
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
 body{
-font-family:Segoe UI, Arial;
-color:white;
+    font-family:Segoe UI, Arial, sans-serif;
+    color:white;
 }
 
 /* FUNDO */
- 
 .background{
-
-height:100vh;
-width:100%;
-
-background-image:url("fundo.jpg");
-background-size:cover;
-background-position:center;
-
-display:flex;
-justify-content:flex-end;
-align-items:center;
-
-padding-right:120px;
-
+    height:100vh;
+    width:100%;
+    background-image:url("fundo.jpg");
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    padding-right:120px;
 }
 
-/* CARD LOGIN */
-
+/* CARD LOGIN / CADASTRO */
 .login-card{
-
-width:320px;
-
-background:rgba(20,20,20,0.92);
-
-backdrop-filter:blur(6px);
-
-padding:40px;
-
-border-radius:12px;
-
-box-shadow:0 10px 30px rgba(0,0,0,0.7);
-
+    width:340px;
+    background:rgba(20,20,20,0.95);
+    backdrop-filter:blur(8px);
+    padding:40px;
+    border-radius:16px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.8);
 }
-
-/* TITULO */
 
 .login-card h2{
-
-margin-bottom:20px;
-
-color:#c8ff8a;
-
+    margin-bottom:24px;
+    color:#c8ff8a;
+    text-align:center;
 }
 
-/* INPUTS */
-
 .login-card input{
-
-width:100%;
-
-padding:12px;
-
-margin-bottom:12px;
-
-border:none;
-
-border-radius:6px;
-
-background:#2b2b2b;
-
-color:white;
-
+    width:100%;
+    padding:14px;
+    margin-bottom:14px;
+    border:none;
+    border-radius:8px;
+    background:#2b2b2b;
+    color:white;
+    font-size:16px;
 }
 
 .login-card input:focus{
-
-outline:none;
-
-box-shadow:0 0 6px #a6ff4d;
-
+    outline:none;
+    box-shadow:0 0 8px #a6ff4d;
 }
 
-/* BOTAO */
-
 .login-card button{
-
-width:100%;
-
-padding:12px;
-
-border:none;
-
-border-radius:6px;
-
-background:#9bdc28;
-
-color:#111;
-
-font-weight:bold;
-
-cursor:pointer;
-
-transition:0.25s;
-
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#9bdc28;
+    color:#111;
+    font-weight:bold;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
 }
 
 .login-card button:hover{
-background:#aeff00;
-color:#000;
+    background:#c8ff8a;
+    transform:scale(1.03);
 }
-
-.login-wrapper{
-display:flex;
-flex-direction:column;
-gap:20px;
-}
-
-
-/* LINKS */
 
 .login-links{
-
-margin-top:10px;
-
-text-align:center;
-
+    margin-top:12px;
+    text-align:center;
 }
 
 .login-links button{
-
-background:none;
-color:#ccc;
-font-size:12px;
-
+    background:none;
+    border:none;
+    color:#ccc;
+    font-size:13px;
+    cursor:pointer;
 }
 
 .login-links button:hover{
-
-color:#c7ff4a;
-
+    color:#c8ff8a;
 }
 
 /* DASHBOARD */
-
 #dashboard{
-
-padding:40px;
-
-background:#121212;
-
-height:100vh;
-
+    padding:40px;
+    background:#121212;
+    height:100vh;
+    overflow-y:auto;
 }
 
+.valor{
+    font-size:28px;
+    font-weight:bold;
+    color:#c8ff8a;
+}
+
+.controles-temperatura{
+    margin:20px 0;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.btn-temp{
+    width:60px;
+    height:60px;
+    font-size:28px;
+    background:#9bdc28;
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+}
+
+.aviso{
+    font-size:13px;
+    color:#aaa;
+}
+
+/* ALIMENTOS */
+.form-alimento{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.form-alimento input{
+    flex:1;
+    min-width:140px;
+    padding:12px;
+    border-radius:8px;
+    background:#2b2b2b;
+    color:white;
+    border:none;
+}
+
+#lista{
+    list-style:none;
+    background:rgba(40,40,40,0.8);
+    padding:16px;
+    border-radius:12px;
+    max-height:400px;
+    overflow-y:auto;
+}
+
+#lista li{
+    padding:12px;
+    border-bottom:1px solid #333;
+    color:#ddd;
+}
+
+#lista li:last-child{
+    border:none;
+}
+
+/* RECUPERAÇÃO */
 #forgot-pane{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-
-background:#1e1e1e;
-padding:40px;
-border-radius:10px;
-width:300px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:#1e1e1e;
+    padding:40px;
+    border-radius:16px;
+    width:340px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.8);
+    text-align:center;
 }
 
+.small{
+    font-size:13px;
+    color:#aaa;
+    margin-top:12px;
+}
+
+.secondary{
+    background:#555;
+    color:white;
+    margin-top:12px;
+}

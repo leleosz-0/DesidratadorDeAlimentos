@@ -1,96 +1,87 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-<meta charset="UTF-8">
-<title>Desidratador</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Desidratador de Alimentos</title>
+    <link rel="stylesheet" href="style.css">
 </head>
- 
 <body>
 
 <div class="background">
 
-<div class="login-wrapper">
+    <div class="login-wrapper">
 
-<div class="login-card" id="login">
+        <!-- LOGIN -->
+        <div class="login-card" id="login">
+            <h2>Entrar no Desidratador</h2>
+            <input id="username" placeholder="Usuário">
+            <input type="password" id="password" placeholder="Senha">
+            <button onclick="login()">Entrar</button>
+            <div class="login-links">
+                <button onclick="mostrarEsqueciSenha()">Esqueci minha senha</button>
+            </div>
+            <button onclick="mostrarCadastro()">Criar conta</button>
+        </div>
 
-<h2>Entrar</h2>
+        <!-- CADASTRO (AGORA COM EMAIL) -->
+        <div class="login-card" id="cadastro" style="display:none;">
+            <h2>Criar Conta</h2>
+            <input id="new-user" placeholder="Usuário">
+            <input id="new-email" placeholder="Email" type="email">
+            <input id="new-pass" type="password" placeholder="Senha">
+            <button onclick="criarConta()">Registrar</button>
+            <div class="login-links">
+                <button onclick="voltarLogin()">Voltar</button>
+            </div>
+        </div>
 
-<input id="username" placeholder="Usuário">
-<input type="password" id="password" placeholder="Senha">
-
-<button onclick="login()">Entrar</button>
-
-<div class="login-links">
-<button onclick="mostrarEsqueciSenha()">Esqueci minha senha</button>
+    </div>
 </div>
 
-<button onclick="mostrarCadastro()">Criar conta</button>
-
-</div>
-
-
-<div class="login-card" id="cadastro" style="display:none;">
-
-<h2>Criar Conta</h2>
-
-<input id="new-user" placeholder="Usuário">
-<input id="new-pass" type="password" placeholder="Senha">
-
-<button onclick="criarConta()">Registrar</button>
-
-<div class="login-links">
-<button onclick="voltarLogin()">Voltar</button>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
+<!-- RECUPERAÇÃO DE SENHA COM CÓDIGO POR EMAIL (2 passos) -->
 <section id="forgot-pane" style="display:none;">
-<h3>Recuperar Acesso</h3>
+    <h3>Recuperar Senha</h3>
 
-<input id="rec-user" placeholder="Usuário">
-<input id="rec-resp" placeholder="Resposta da pergunta">
-<input id="rec-nova" type="password" placeholder="Nova senha">
+    <!-- PASSO 1: informar email -->
+    <div id="reset-step1">
+        <input id="reset-email" placeholder="Seu email cadastrado" type="email">
+        <button onclick="enviarCodigo()">Enviar Código por Email</button>
+        <p class="small">Você receberá um código de 6 dígitos válido por 15 minutos.</p>
+    </div>
 
-<button onclick="recuperarSenha()">Redefinir</button>
+    <!-- PASSO 2: código + nova senha -->
+    <div id="reset-step2" style="display:none;">
+        <input id="reset-code" placeholder="Código recebido no email" maxlength="6">
+        <input id="reset-nova" type="password" placeholder="Nova senha">
+        <button onclick="redefinirSenha()">Redefinir Senha</button>
+        <button onclick="voltarStep1()" class="secondary">Voltar</button>
+    </div>
 </section>
 
-
+<!-- DASHBOARD -->
 <section id="dashboard" style="display:none;">
+    <h2>Dashboard do Desidratador</h2>
 
-<h2>Dashboard</h2>
+    <p>Temperatura Atual: <span id="temp" class="valor">0</span>°C</p>
+    <p>Temperatura Desejada: <span id="setpoint" class="valor">65</span>°C</p>
 
-<p>Temperatura Atual:
-<span id="temp">0</span>°C
-</p>
+    <div class="controles-temperatura">
+        <button onclick="ajustarSetpoint(-1)" class="btn-temp">−</button>
+        <button onclick="ajustarSetpoint(1)" class="btn-temp">+</button>
+        <span class="aviso">Máximo 70°C • Mínimo 0°C</span>
+    </div>
 
-<p>Temperatura Desejada:
-<span id="setpoint">0</span>°C
-</p>
+    <h3>Banco de Alimentos</h3>
+    <div class="form-alimento">
+        <input id="nome" placeholder="Nome do alimento (ex: Maçã)">
+        <input type="number" id="tempAlim" placeholder="Temp. (°C)">
+        <input type="number" id="tempoAlim" placeholder="Tempo (min)">
+        <button onclick="addAlimento()">Adicionar Alimento</button>
+    </div>
 
-<button onclick="ajustarSetpoint(-1)">−</button>
-<button onclick="ajustarSetpoint(1)">+</button>
-
-
-<h3>Alimentos</h3>
-
-<input id="nome" placeholder="Nome">
-<input type="number" id="tempAlim" placeholder="Temperatura">
-<input type="number" id="tempoAlim" placeholder="Tempo">
-
-<button onclick="addAlimento()">Adicionar</button>
-
-<ul id="lista"></ul>
-
+    <ul id="lista"></ul>
 </section>
 
 <script src="script.js"></script>
-
 </body>
 </html>
