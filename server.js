@@ -1,31 +1,31 @@
-/* server.js (versão melhorada e segura) */
+/* server.js - Versão Final Corrigida e Segura */
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");   // ← NOVA DEPENDÊNCIA
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = 3000;
-const SECRET_KEY = "supersecreto123"; // Em produção use variável de ambiente!
+const SECRET_KEY = "supersecreto123"; // Em produção use process.env.JWT_SECRET
+const ESP32_API_KEY = "desidratador_esp32_2026"; // Mude para uma chave forte
 
-app.use(express.json());                    // ← Substituído body-parser (deprecated)
+app.use(express.json());
 app.use(express.static("public"));
 
 const db = new sqlite3.Database("desidratador.db");
 
-// ====================== CONFIGURAÇÃO EMAIL (ALTERE AQUI) ======================
-const transporter = nodemailer.createTransporter({
+// ====================== CONFIGURAÇÃO EMAIL ======================
+const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'leogabri0903@gmail.com',           // ← COLOQUE SEU EMAIL
-        pass: 'otoz tgjr cmop rubu'               // ← APP PASSWORD do Google (não a senha normal!)
+        user: 'leogabri0903@gmail.com',
+        pass: 'otoz tgjr cmop rubu'   // App Password do Google
     }
 });
 
-// ====================== BANCO DE DADOS (atualizado) ======================
+// ====================== BANCO DE DADOS ======================
 db.serialize(() => {
-    // Usuários (removida pergunta/resposta, adicionado email)
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
@@ -33,7 +33,6 @@ db.serialize(() => {
         password TEXT
     )`);
 
-    // Tabela para códigos de recuperação (nova)
     db.run(`CREATE TABLE IF NOT EXISTS password_resets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -41,7 +40,6 @@ db.serialize(() => {
         expires_at INTEGER
     )`);
 
-    // Alimentos
     db.run(`CREATE TABLE IF NOT EXISTS alimentos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
@@ -50,20 +48,42 @@ db.serialize(() => {
         user_id INTEGER
     )`);
 
-    // Sensor e Setpoint (mantidos)
     db.run(`CREATE TABLE IF NOT EXISTS sensor (id INTEGER PRIMARY KEY CHECK(id=1), temperatura REAL)`);
-    db.run(`INSERT OR IGNORE INTO sensor (id, temperatura) VALUES (1,0)`);
+    db.run(`INSERT OR IGNORE INTO sensor (id, temperatura) VALUES (1, 0)`);
 
     db.run(`CREATE TABLE IF NOT EXISTS setpoints (id INTEGER PRIMARY KEY CHECK(id=1), valor REAL DEFAULT 65)`);
-    db.run(`INSERT OR IGNORE INTO setpoints (id, valor) VALUES (1,65)`);
+    db.run(`INSERT OR IGNORE INTO setpoints (id, valor) VALUES (1, 65)`);
 });
 
-// ====================== REGISTRO (agora com email) ======================
+// ====================== MIDDLEWARE PARA ESP32 ======================
+app.post("/sensor-data", (req, res, next) => {
+    if (req.header("X-API-Key") !== ESP32_API_KEY) {
+        return res.status(401).json({ error: "Chave de API inválida" });
+    }
+    next();
+});
+
+// ====================== MIDDLEWARE DE AUTENTICAÇÃO ======================
+function auth(req, res, next) {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!token) return res.status(401).json({ error: "Token ausente" });
+
+    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+        if (err) return res.status(401).json({ error: "Token inválido ou expirado" });
+        req.user = decoded;
+        next();
+    });
+}
+
+// ====================== REGISTRO ======================
 app.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
 
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
         return res.status(400).json({ error: "Email inválido" });
+    }
+    if (!username || !password) {
+        return res.status(400).json({ error: "Usuário e senha são obrigatórios" });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -77,40 +97,43 @@ app.post("/register", async (req, res) => {
     );
 });
 
-// ====================== LOGIN ======================
+// ====================== LOGIN (CORRIGIDO) ======================
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    db.get(`SELECT * FROM users WHERE username=?`, [username], async (err, user) => {
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email e senha são obrigatórios" });
+    }
+
+    db.get(`SELECT * FROM users WHERE email=?`, [email], async (err, user) => {
+        if (err) return res.status(500).json({ error: "Erro interno no servidor" });
         if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
 
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return res.status(400).json({ error: "Senha inválida" });
 
-        // Token com expiração (melhoria de segurança)
         const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '24h' });
         res.json({ token });
     });
 });
 
-// ====================== RECUPERAÇÃO POR EMAIL ======================
+// ====================== RECUPERAÇÃO DE SENHA ======================
 app.post("/request-reset", (req, res) => {
     const { email } = req.body;
 
     db.get(`SELECT id FROM users WHERE email=?`, [email], (err, user) => {
         if (!user) return res.status(400).json({ error: "Email não cadastrado" });
 
-        const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 dígitos
-        const expires = Date.now() + 15 * 60 * 1000; // 15 minutos
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = Date.now() + 15 * 60 * 1000;
 
-        // Remove códigos antigos do usuário
         db.run(`DELETE FROM password_resets WHERE user_id=?`, [user.id]);
 
         db.run(`INSERT INTO password_resets (user_id, code, expires_at) VALUES (?,?,?)`,
             [user.id, code, expires]);
 
         const mailOptions = {
-            from: 'SEU_EMAIL@gmail.com',
+            from: 'leogabri0903@gmail.com',
             to: email,
             subject: 'Código de Recuperação - Desidratador',
             text: `Olá!\n\nSeu código de recuperação é: ${code}\n\nVálido por 15 minutos.\n\nNão compartilhe com ninguém.`
@@ -142,18 +165,6 @@ app.post("/reset-password", async (req, res) => {
     });
 });
 
-// ====================== MIDDLEWARE DE AUTENTICAÇÃO ======================
-function auth(req, res, next) {
-    const token = req.headers.authorization;
-    if (!token) return res.status(401).json({ error: "Token ausente" });
-
-    jwt.verify(token, SECRET_KEY, (err, decoded) => {
-        if (err) return res.status(401).json({ error: "Token inválido ou expirado" });
-        req.user = decoded;
-        next();
-    });
-}
-
 // ====================== CRUD ALIMENTOS ======================
 app.post("/alimentos", auth, (req, res) => {
     const { nome, temperatura, tempo } = req.body;
@@ -170,9 +181,13 @@ app.get("/alimentos", auth, (req, res) => {
     db.all(`SELECT * FROM alimentos WHERE user_id=?`, [req.user.id], (err, rows) => res.json(rows));
 });
 
-// ====================== SENSOR E SETPOINT (mantidos) ======================
+// ====================== SENSOR E SETPOINT ======================
 app.post("/sensor-data", (req, res) => {
     const { temperatura } = req.body;
+    if (typeof temperatura !== "number") {
+        return res.status(400).json({ error: "Temperatura inválida" });
+    }
+
     db.run(`UPDATE sensor SET temperatura=? WHERE id=1`, [temperatura]);
     db.get(`SELECT valor FROM setpoints WHERE id=1`, [], (err, row) => {
         res.json({ setpoint: row ? row.valor : 65 });
@@ -180,19 +195,24 @@ app.post("/sensor-data", (req, res) => {
 });
 
 app.get("/sensor-data", auth, (req, res) => {
-    db.get(`SELECT temperatura FROM sensor WHERE id=1`, [], (err, row) => res.json(row || { temperatura: 0 }));
+    db.get(`SELECT temperatura FROM sensor WHERE id=1`, [], (err, row) => 
+        res.json(row || { temperatura: 0 })
+    );
 });
 
 app.post("/set-target", auth, (req, res) => {
     let { valor } = req.body;
     if (valor > 70) valor = 70;
     if (valor < 0) valor = 0;
+
     db.run(`UPDATE setpoints SET valor=? WHERE id=1`, [valor]);
     res.json({ valor });
 });
 
 app.get("/set-target", auth, (req, res) => {
-    db.get(`SELECT valor FROM setpoints WHERE id=1`, [], (err, row) => res.json(row));
+    db.get(`SELECT valor FROM setpoints WHERE id=1`, [], (err, row) => res.json(row || { valor: 65 }));
 });
 
-app.listen(PORT, () => console.log(`🚀 Server rodando na porta ${PORT} - Desidratador seguro!`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server rodando na porta ${PORT} - Desidratador seguro!`);
+});

@@ -60,6 +60,7 @@ void loop() {
     HTTPClient http;
     http.begin(server);
     http.addHeader("Content-Type","application/json");
+    http.addHeader("X-API-Key", "desidratador_esp32_2026");
     String json = "{\"temperatura\":"+String(temperaturaAtual)+"}";
     int code = http.POST(json);
     if(code==200){
