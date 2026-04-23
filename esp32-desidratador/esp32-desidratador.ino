@@ -10,6 +10,19 @@
  * - Ventoinha da Peltier (integrada)
  * - Ventoinha de exaustao
  * 
+ * Conexões:
+ * ESP32          Componente
+ * ------         ----------
+ * GPIO 4   --->  DHT11 (DATA)
+ * GPIO 5   --->  Modulo Rele (IN) --> Celula Peltier + Ventoinha integrada
+ * GPIO 18  --->  Ventoinha de Exaustao (via transistor ou rele)
+ * GPIO 19  --->  Buzzer (+)
+ * GPIO 21  --->  LCD I2C (SDA)
+ * GPIO 22  --->  LCD I2C (SCL)
+ * 3.3V     --->  DHT11 (VCC), LCD (VCC)
+ * GND      --->  Todos os GND
+ * 5V/VIN   --->  Modulo Rele (VCC)
+ *
  * Funcionalidades:
  * - Leitura de temperatura e umidade
  * - Controle de temperatura com limite de 60°C
